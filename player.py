@@ -11,6 +11,8 @@ class Player:
         self.seat = 0
         self.action_n =-1
         self.bet_how = 0
+        self.power_hand = -1
+        self.best_hand = []
 
 
     def copy(self):

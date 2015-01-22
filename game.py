@@ -117,17 +117,19 @@ class Game:
         for player in self.players:
             if not player.isFold:
 
-                power_hand = HandEvaulate(Hand(self.board, player.hand.cards).cards).evaulate()
-                if power_hand > max_power_hand:
-                    max_power_hand = power_hand
+                player.power_hand, player.best_hand = HandEvaulate(Hand(self.board, player.hand.cards).cards).evaulate()
+                if player.power_hand > max_power_hand:
+                    max_power_hand = player.power_hand
                     winner = []
                     winner.append(player)
-                elif power_hand == max_power_hand:
+                elif player.power_hand == max_power_hand:
                     winner.append(player)
+
         for win in winner:
             player = self.search_player(win.id)
             player.money+=self.award/len(winner)
-            print ("wygral gracz %d" % player.id)
+            hand_print = Hand_E(player.power_hand)
+            print ("%d wygral gracz %d z %s %s" % (self.award/len(winner), player.id, hand_print, player.best_hand))
         self.reset()
         return 0
 

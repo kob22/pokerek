@@ -38,7 +38,10 @@ class HandEvaulate:
         flush = False
         flush_color = -1
         highCardStraight =0
-
+        most_common = -1
+        pair=[]
+        pairs = []
+        three = []
         ranks = collections.Counter()
         suits = collections.Counter()
 
@@ -49,25 +52,34 @@ class HandEvaulate:
 
         countCards = len(ranks)
         countSuits = len(suits)
+        most_common = ranks.most_common(1)[0][0]
 
         #high card
         if countCards == 7:
             self.pokerHand=0
         #one pair
         elif countCards == 6:
+            pair = most_common
             self.pokerHand=1
         #two pair
         elif countCards == 5:
-            self.pokerHand=2
+            if 3 in ranks.values():
+                self.pokerHand = 3
+            else:
+                self.pokerHand=2
+                pairs = [rank[0] for rank in ranks.most_common(2) if rank[1]==2]
         elif countCards == 4:
             #four od kind
             if 4 in ranks.values():
                 self.pokerHand=7
             #full
             elif 3 in ranks.values():
+                three = [rank[0] for rank in ranks.most_common(1) if rank[1] == 3]
+                pairs = [rank[0] for rank in ranks.most_common(3) if rank[1] == 2]
                 self.pokerHand=6
             #three (dwie) todo
             elif 2 in ranks.values() and 1 in ranks.values():
+                pairs = [rank[0] for rank in ranks.most_common(3) if rank[1] == 2]
                 self.pokerHand=2
         elif countCards <4 and countCards >1:
             #four od kind
@@ -75,6 +87,8 @@ class HandEvaulate:
                 self.pokerHand=7
             #full
             elif 3 in ranks.values():
+                three = [rank[0] for rank in ranks.most_common(2) if rank[1] == 3]
+                pairs = [rank[0] for rank in ranks.most_common(3) if rank[1] == 2]
                 self.pokerHand=6
         #error
         else:
@@ -83,7 +97,7 @@ class HandEvaulate:
 
 
         #flush 12345 6 7
-        if countSuits <4 and suits.most_common(1)[0][1] >3 and self.pokerHand <5:
+        if countSuits <4 and suits.most_common(1)[0][1] ==5 and self.pokerHand <5:
             flush_color =suits.most_common(1)[0][0]
             self.pokerHand = 5
             flush = True
@@ -121,7 +135,7 @@ class HandEvaulate:
         if straight and self.pokerHand <4:
             self.pokerHand = 4
 
-        #todo brakuje sprawdzenia czy to to samo
+
         if flush and straight:
             isPoker = False
             isOk = True
@@ -129,68 +143,123 @@ class HandEvaulate:
 
             if highCardStraight == 5:
                 for x in range(highCardStraight,highCardStraight-4,-1):
-                    suits_straight[self.get_card_suit(x)] += 1
-                suits_straight[self.get_card_suit(14)] += 1
+                    suits_straight[self.search_card_suit(x,flush_color)] += 1
+                suits_straight[self.search_card_suit(14,flush_color)] += 1
             else:
                 for x in range(highCardStraight,highCardStraight-5,-1):
-                    suits_straight[self.get_card_suit(x)] += 1
-
-            if len(suits_straight) == 1:
-                if highCardStraight == "14":
+                    suits_straight[self.search_card_suit(x,flush_color)] += 1
+            if len(suits_straight) == 1 and suits_straight.most_common(1)[0][1]==5:
+                if highCardStraight == 14:
                     self.pokerHand = 9
                 else:
                     self.pokerHand = 8
 
 
-        hand_print = Hand_E(self.pokerHand)
         if self.pokerHand == 0:
-            print(hand_print)
-            print (self.high_card())
-            return self.pokerHand
+            return (self.pokerHand, self.high_card())
         elif self.pokerHand == 1:
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand, self.one_pair(pair))
         elif self.pokerHand == 2:
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand, self.two_pair(pairs))
         elif self.pokerHand == 3:
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand, self.three_of_kind(most_common))
         elif self.pokerHand == 4:
-            print(self.straight(highCardStraight))
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand,self.straight(highCardStraight))
         elif self.pokerHand == 5:
-            print(self.flush(flush_color))
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand,self.flush(flush_color))
         elif self.pokerHand == 6:
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand, self.full_haouse(three, pairs))
         elif self.pokerHand == 7:
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand,self.four_kind(most_common))
         elif self.pokerHand == 8:
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand,self.straight_flush(highCardStraight,flush_color))
         elif self.pokerHand == 9:
-            print(hand_print)
-            return self.pokerHand
+            return (self.pokerHand,self.royal_flush(highCardStraight,flush_color))
         elif self.pokerHand == -1:
             print ("BLAAAAAAAD!!!!!!!")
-            return -1
+            return (-1,[])
 
     def get_card_suit(self,card_rank):
         for card in self.cards:
             if card.rank == card_rank:
                 return card.suit
 
+    def search_card_suit(self,card_rank,card_suit):
+        for card in self.cards:
+            if card.rank == card_rank and card.suit==card_suit:
+                return card.suit
+
     def high_card(self):
         self.hand.sort_rank()
         return self.hand.cards[:5]
 
+    def one_pair(self,pair):
+        onepair = []
+        temp=[]
+        self.hand.sort_rank()
+        i=0
+        for card in self.hand.cards:
+
+            if card.rank==pair:
+                onepair.append(card)
+            elif i<3:
+                temp.append(card)
+                i+=1
+        onepair.extend(temp)
+        return onepair
+
+    def two_pair(self,pairs):
+        pairs.sort(reverse=True)
+        pairs = pairs[:2]
+        twopair= []
+        temp=[]
+        self.hand.sort_rank()
+        i=0
+        for card in self.hand.cards:
+            if card.rank in pairs:
+                twopair.append(card)
+            elif i<1:
+                temp.append(card)
+                i+=1
+        twopair.extend(temp)
+        return twopair
+
+    def three_of_kind(self,three):
+        three_of_kind = []
+        temp=[]
+        self.hand.sort_rank()
+        i=0
+        for card in self.hand.cards:
+            if card.rank==three:
+                three_of_kind.append(card)
+            elif i<2:
+                temp.append(card)
+                i+=1
+        three_of_kind.extend(temp)
+        return three_of_kind
+
+
+    def straight(self,highCard):
+        ranks = [card.rank for card in self.hand.cards]
+        straight = []
+        prv_card_rank=-1
+        ace_for_low=[]
+        for card in self.hand.cards:
+            if card.rank <= highCard:
+                if prv_card_rank!=card.rank:
+                    straight.append(card)
+            if card.rank == 14:
+                ace_for_low=card.suit
+            prv_card_rank=card.rank
+
+        if highCard == 5:
+            straight.append(Card(14,ace_for_low))
+        return straight[:5]
+
+
     def flush(self,flush_color):
         flush_hand_temp = Hand(self.hand.hand_in_color(flush_color))
+        print (flush_hand_temp.cards)
         prv_card_rank=-1
         flush_hand=[]
         for card in flush_hand_temp.cards:
@@ -199,19 +268,52 @@ class HandEvaulate:
             prv_card_rank=card.rank
         return flush_hand[:5]
 
-    def straight(self,highCard):
+    def full_haouse(self,three, pairs):
+        full = []
+        temp = []
+        self.hand.sort_rank()
+        pairs.append(min(three))
+        three = max(three)
+        pairs = max(pairs)
+        for card in self.hand.cards:
+            if card.rank==three:
+                full.append(card)
+            elif card.rank == pairs:
+                temp.append(card)
+        full.extend(temp)
+        return full[:5]
+
+
+    def four_kind(self,most_common):
+        four_kind=[]
+        max_card=Card(0,0)
+        for card in self.cards:
+            if card.rank == most_common:
+                four_kind.append(card)
+            elif card.rank > max_card.rank:
+                max_card = card
+        four_kind.append(max_card)
+        return four_kind
+
+
+    def straight_flush(self,highCard,flush_color):
         ranks = [card.rank for card in self.hand.cards]
         striaght = []
         prv_card_rank=-1
         ace_for_low=[]
         for card in self.hand.cards:
             if card.rank <= highCard:
-                if prv_card_rank!=card.rank:
+                if prv_card_rank!=card.rank and card.suit == flush_color:
                     striaght.append(card)
+                    prv_card_rank=card.rank
             if card.rank == 14:
                 ace_for_low=card.suit
-            prv_card_rank=card.rank
+
 
         if highCard == 5:
             striaght.append(Card(14,ace_for_low))
         return striaght[:5]
+
+
+    def royal_flush(self,highCard,flush_color):
+        return self.straight_flush(highCard,flush_color)
