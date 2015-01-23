@@ -26,6 +26,7 @@ class Hand_E:
         return self.hands[self.hand]
 
 
+
 class HandEvaulate:
     def __init__(self, cards):
         self.hand = Hand(cards)
@@ -37,7 +38,7 @@ class HandEvaulate:
         straight = False
         flush = False
         flush_color = -1
-        highCardStraight =0
+        highCardStraight =-1
         most_common = -1
         pair=[]
         pairs = []
@@ -111,7 +112,7 @@ class HandEvaulate:
             while((not straight) and i<3):
                 is_it_ok = True
                 j=0
-                while(is_it_ok and (i+j+1) < len(cardsR) ):
+                while(is_it_ok and (i+j+1) < len(cardsR) and not straight ):
                     if (cardsR[i+j]+1) == (cardsR[i+j+1]):
 
                         highCardStraight = cardsR[i+j+1]
@@ -121,7 +122,7 @@ class HandEvaulate:
 
                             straight = True
                         j+=1
-                    elif (j==3 and cardsR[0]== 2 and (14 in cardsR)):
+                    elif (j==3 and cardsR[0]== 2 and (14 in cardsR) and highCardStraight==5 and is_it_ok):
                         is_it_ok = True
                         if (j==3):
                             highCardStraight = 5
@@ -129,6 +130,9 @@ class HandEvaulate:
                         j+=1
                     else:
                         is_it_ok = False
+                        highCardStraight=-1
+
+
 
                 i+=1
 
@@ -272,9 +276,12 @@ class HandEvaulate:
         full = []
         temp = []
         self.hand.sort_rank()
-        pairs.append(min(three))
+        if len(three) >1:
+            pairs.append(min(three))
         three = max(three)
+
         pairs = max(pairs)
+
         for card in self.hand.cards:
             if card.rank==three:
                 full.append(card)
@@ -317,3 +324,5 @@ class HandEvaulate:
 
     def royal_flush(self,highCard,flush_color):
         return self.straight_flush(highCard,flush_color)
+
+
