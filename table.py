@@ -10,73 +10,69 @@ class Table:
 
     def __init__(self):
         self.players=[]
+        self.game = Game(self.players)
 
     def addPlayer(self,player):
         self.players.append(player)
 
-    def removePlayer(self,player):
-        print ("abc")
+    #def removePlayer(self,player):
+        #print ("abc")
 
     def start(self):
-        start = timeit.default_timer()
+        self.game = Game(self.players)
+        self.game.start()
+        self.game.begin_turn()
+        return 0
 
-        game = Game(self.players)
-        game.start()
-        game.begin_turn()
-        game.auction()
+    #licytacja, zwraca [ , ] pierwszy parametry sprawdza ile jeszcze graczy ma licytowac, drugi w przypadku -1 odpowiedz gracza jest bledna, >=0 jest poprawna
+    # przyjmuje id gracza, akcje np "fold" "call" "bet" "raise" oraz wysokosc zakladu
+    def auction(self,id,action,bet):
+        print (action)
+        return self.game.auction(id,action,bet)
 
-        if game.winner_by_fold() == 0:
-            return 0
+
+    def board(self):
+        return self.game.board
+
+    def print_players(self):
         for id in self.players:
             print (id.money)
             print (id.isFold)
 
-        game.flop()
-        print (game.board)
-        game.auction()
-
-        if game.winner_by_fold() == 0:
-            return 0
-        for id in self.players:
-            print (id.money)
-            print (id.isFold)
-
-
-        game.turn()
-        print (game.board)
-        game.auction()
-
-        if game.winner_by_fold() == 0:
-            return 0
-        for id in self.players:
-            print (id.money)
-            print (id.isFold)
-
-        game.river()
-        print (game.board)
-        game.auction()
-
-        if game.winner_by_fold() == 0:
-            return 0
-
+    def print_players_hand(self):
         for id in self.players:
             print (id.hand)
             print (id.money)
             print (id.isFold)
 
-        if game.who_is_winner() == 0:
+
+    def play_flop(self):
+        self.game.flop()
+        return 0
+
+    def play_turn(self):
+        self.game.turn()
+        return 0
+
+    def play_river(self):
+        self.game.river()
+        return 0
+
+    def add_players(self,id,money):
+        self.addPlayer((Player(id,"{0}".format(id), money) ))
+        return 0
+
+    #sprawdza czy jest wygrany, jesli tak zwraca 0
+    def is_winner(self):
+        if self.game.winner_by_fold() == 0:
             return 0
+        return -1
 
-        print (game.board)
-        for id in players:
-            print (id.hand)
-            print (id.money)
-            print (id.isFold)
-
-
-
-
-        stop = timeit.default_timer()
+    #sprawdza czy jest wygrany, jesli licytacja jest skonczona, jesli tak zwraca 0
+    def is_winner_after_river(self):
+        if self.game.who_is_winner() == 0:
+            return 0
+        return -1
 
 
 # czworka =0

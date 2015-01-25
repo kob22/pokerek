@@ -12,49 +12,54 @@ class Game:
         self.deck = Deck()
         self.board = []
         self.bet=0
-        self.stillInGame = [p.id for p in self.players ]
-        print (self.stillInGame)
-
+        self.stillInGame = []
+        self.countPlayers= len(self.players)
+        self.action = 0
 
     def start(self):
-
+        self.stillInGame = [p.id for p in self.players ]
         self.deck.shuffle()
         self.pay_blinds()
+        return 0
 
     def begin_turn(self):
         for two in range(2):
             for player in self.players:
                 player.hand.add_card(self.deck.getOne())
 
-    def auction(self):
-        countPlayers= len(self.players)
-        action = 0
+    def auction(self,id,do_it,bet):
 
-        while(countPlayers>0):
-            for player in self.players:
-                print (player.isFold)
-                if not player.isFold and not player.isAllin:
-                    if player.action_n != action:
+        answer = -1
+        for playerf in self.players:
+            if playerf.id == id:
+                player = playerf
+        if not player.isFold and not player.isAllin:
+            if not player.isFold and not player.isAllin:
+
+                if player.action_n != self.action:
                         #print "action %d" % player.action_n
                         #print "action %d" % action
-                        print ("Gracz %d ma kasy  %d" % (player.id, player.money))
-                        print ("co robisz?")
-                        answer = player.action(self.bet)
-                        self.award+=answer[0]
+                    #print ("Gracz %d ma kasy  %d" % (player.id, player.money))
+                    #print ("co robisz?")
 
-                        if self.bet < answer[0]:
+                    answer = player.action(do_it,bet,self.bet)
+                    self.award+=answer[0]
+                    if self.bet < answer[0]:
                         #    print "wchooodze"
-                            action+=1
-                            player.action_n = action
-                            self.bet = answer[0]
-                            countPlayers = len(self.players)
-                        elif self.bet == answer[0]:
-                            player.action_n = action
-                for p in self.players:
-                    print ("Gracz %d ma kasy  %d" % (p.money, p.bet_how))
-                countPlayers-=1
+                        self.action+=1
+                        player.action_n = self.action
+                        self.bet = answer[0]
+                        countPlayers = len(self.players)
+                    elif self.bet == answer[0]:
+                        player.action_n = self.action
+                self.countPlayers-=1
 
-
+                if self.countPlayers == 0:
+                    self.bet = 0
+                    self.countPlayers = len(self.players)
+                    self.action = 0
+            else: answer=0
+        return self.countPlayers,answer
 
     def flop(self):
         self.board.extend(self.deck.getCards(3))
@@ -92,22 +97,17 @@ class Game:
         raise Exception("Not found")
 
     def winner_by_fold(self):
-        print ("---------------------")
         for player in self.players:
             if player.id in self.stillInGame and player.isFold:
-                print (self.stillInGame)
-                print (player.id)
-                self.stillInGame.remove(player.id)
-        print ("---------------------")
-        if len(self.stillInGame) == 1:
 
+                self.stillInGame.remove(player.id)
+        if len(self.stillInGame) == 1:
             return self.winner(self.stillInGame[0])
         return -1
 
     def winner(self,id):
         player = self.search_player(id)
         player.money+= self.award
-        print ("wygral gracz %d" % player.id)
         self.reset()
         return 0
 
