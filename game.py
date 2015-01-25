@@ -2,8 +2,13 @@ from player import *
 from deck import *
 from hand import *
 from handevaulate import *
+## @package class Game
+#  klasa gry
+#
+#
 class Game:
-
+    ##konstruktor
+    # @param gracze
     def __init__(self,players):
         self.small_blind = 5
         self.big_blind = 10
@@ -16,19 +21,25 @@ class Game:
         self.countPlayers= len(self.players)
         self.action = 0
 
+    ## metoda rozpycznajaca gre
     def start(self):
         self.stillInGame = [p.id for p in self.players ]
         self.deck.shuffle()
         self.pay_blinds()
         return 0
 
+    ## losowanie kart
     def begin_turn(self):
         for two in range(2):
             for player in self.players:
                 player.hand.add_card(self.deck.getOne())
 
+    ## licytacja dla gracza
+    # @param self
+    # @param id gracza
+    # @param do_it rodzaj akcji
+    # @param wysokosc zakladu
     def auction(self,id,do_it,bet):
-
         answer = -1
         for playerf in self.players:
             if playerf.id == id:
@@ -61,15 +72,19 @@ class Game:
             else: answer=0
         return self.countPlayers,answer
 
+    ## wykladanie kart flop
     def flop(self):
         self.board.extend(self.deck.getCards(3))
 
+    ## wykladanie kart turn
     def turn(self):
         self.board.append(self.deck.getOne())
 
+    ## wykladanie kart river
     def river(self):
         self.board.append(self.deck.getOne())
 
+    ## placenie blinds
     def pay_blinds(self):
         countPlayers = len(self.players)
         if countPlayers>2:
@@ -84,18 +99,20 @@ class Game:
             self.award+=self.big_blind
         self.bet = self.big_blind
 
-
+    ## reset graczy
     def reset(self):
         for player in self.players:
             player.reset()
 
-
+    ## wyszukiwanie gracza
+    # @param id gracza
     def search_player(self, id):
         for player in self.players:
             if player.id == id:
                 return player
         raise Exception("Not found")
 
+    ## sprawdzenie czy jest wygrany, jesli reszta zrezygnowala
     def winner_by_fold(self):
         for player in self.players:
             if player.id in self.stillInGame and player.isFold:
@@ -105,12 +122,14 @@ class Game:
             return self.winner(self.stillInGame[0])
         return -1
 
+    ## okreslenie wygranego
     def winner(self,id):
         player = self.search_player(id)
         player.money+= self.award
         self.reset()
         return 0
 
+    ## sprawdzenie kto wygral na podstawie rąk, po river
     def who_is_winner(self):
         winner = []
         max_power_hand = -1

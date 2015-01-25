@@ -60,12 +60,24 @@ flop()
 
 print(print_board())
 a.auction(1,"bet",100)
-a.auction(2,"fold",0)
-a.auction(3,"fold",0)
-a.auction(4,"fold",0)
-a.auction(4,"fold",0)
+a.auction(2,"call",0)
+a.auction(3,"call",0)
+a.auction(4,"call",0)
 
 print (a.is_winner())
+turn()
+a.auction(1,"check",0)
+a.auction(2,"check",0)
+a.auction(3,"check",0)
+a.auction(4,"check",0)
 
-for player in a.players:
-    print (player.isFold)
+print (a.is_winner())
+river()
+
+a.auction(1,"check",0)
+a.auction(2,"check",0)
+a.auction(3,"check",0)
+a.auction(4,"check",0)
+
+print (a.is_winner())
+print (a.is_winner_after_river())

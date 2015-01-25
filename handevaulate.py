@@ -4,8 +4,13 @@ from hand import Hand
 from enum import Enum
 import collections
 
-
+## @package class Hand_e
+#  klasa okreslajaca reke i reprezentatywna
+#
+#
 class Hand_E:
+
+    ## @var hands statyczna z rodzajami rąk
     hands = {
         0: "High Card",
         1: "One Pair",
@@ -19,21 +24,30 @@ class Hand_E:
         9: "Royal flush"
     }
 
+    ## kontruktor
+    # @param hand ręka kart
     def __init__(self,hand):
         self.hand=hand;
 
+    ## metoda reprezentujaca
     def __str__(self):
         return self.hands[self.hand]
 
 
-
+## @package class HandEvaulate
+#  klasa okreslajaca reke i reprezentatywna
+#
+#
 class HandEvaulate:
+
+    ## kontruktor
+    # @param cards karty
     def __init__(self, cards):
         self.hand = Hand(cards)
         self.cards = self.hand.cards
         self.pokerHand = 0
 
-
+    ## metoda okreslajaca sile reki
     def evaulate(self):
         straight = False
         flush = False
@@ -97,7 +111,7 @@ class HandEvaulate:
 
 
 
-        #flush 12345 6 7
+        #flush
         if countSuits <4 and suits.most_common(1)[0][1] ==5 and self.pokerHand <5:
             flush_color =suits.most_common(1)[0][0]
             self.pokerHand = 5
@@ -135,11 +149,11 @@ class HandEvaulate:
 
 
                 i+=1
-
+        #strit
         if straight and self.pokerHand <4:
             self.pokerHand = 4
 
-
+        #sprawdza czy poker
         if flush and straight:
             isPoker = False
             isOk = True
@@ -158,7 +172,7 @@ class HandEvaulate:
                 else:
                     self.pokerHand = 8
 
-
+        #na podstawie okreslonej reki wywoluje metode do znalezienia tej reki
         if self.pokerHand == 0:
             return (self.pokerHand, self.high_card())
         elif self.pokerHand == 1:
@@ -183,20 +197,24 @@ class HandEvaulate:
             print ("BLAAAAAAAD!!!!!!!")
             return (-1,[])
 
+    ## zwraca kolor karty
     def get_card_suit(self,card_rank):
         for card in self.cards:
             if card.rank == card_rank:
                 return card.suit
 
+    ## szuka karty o podanej figurze i kolorze
     def search_card_suit(self,card_rank,card_suit):
         for card in self.cards:
             if card.rank == card_rank and card.suit==card_suit:
                 return card.suit
 
+    ## zwraca reke o wysokiej karcie
     def high_card(self):
         self.hand.sort_rank()
         return self.hand.cards[:5]
 
+    ## zwraca reke o jednej parze
     def one_pair(self,pair):
         onepair = []
         temp=[]
@@ -212,6 +230,7 @@ class HandEvaulate:
         onepair.extend(temp)
         return onepair
 
+    ## zwraca reke z dwiema parami
     def two_pair(self,pairs):
         pairs.sort(reverse=True)
         pairs = pairs[:2]
@@ -228,6 +247,7 @@ class HandEvaulate:
         twopair.extend(temp)
         return twopair
 
+    ## zwraca reke z trojka
     def three_of_kind(self,three):
         three_of_kind = []
         temp=[]
@@ -242,7 +262,7 @@ class HandEvaulate:
         three_of_kind.extend(temp)
         return three_of_kind
 
-
+    ## zwraca reke ze stritem
     def straight(self,highCard):
         ranks = [card.rank for card in self.hand.cards]
         straight = []
@@ -260,7 +280,7 @@ class HandEvaulate:
             straight.append(Card(14,ace_for_low))
         return straight[:5]
 
-
+    ## zwraca reke z kolorem
     def flush(self,flush_color):
         flush_hand_temp = Hand(self.hand.hand_in_color(flush_color))
         print (flush_hand_temp.cards)
@@ -272,6 +292,7 @@ class HandEvaulate:
             prv_card_rank=card.rank
         return flush_hand[:5]
 
+    ## zwraca reke z full
     def full_haouse(self,three, pairs):
         full = []
         temp = []
@@ -290,7 +311,7 @@ class HandEvaulate:
         full.extend(temp)
         return full[:5]
 
-
+    ## zwraca reke z czworka
     def four_kind(self,most_common):
         four_kind=[]
         max_card=Card(0,0)
@@ -302,7 +323,7 @@ class HandEvaulate:
         four_kind.append(max_card)
         return four_kind
 
-
+    ## zwraca reke z straight flush
     def straight_flush(self,highCard,flush_color):
         ranks = [card.rank for card in self.hand.cards]
         striaght = []
@@ -321,7 +342,7 @@ class HandEvaulate:
             striaght.append(Card(14,ace_for_low))
         return striaght[:5]
 
-
+    ## zwraca reke z pokerem
     def royal_flush(self,highCard,flush_color):
         return self.straight_flush(highCard,flush_color)
 

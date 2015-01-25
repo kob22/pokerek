@@ -1,11 +1,15 @@
 from hand import *
-def pytaj():
-    answer = input()
-    bet = 100
-    return answer,bet
 
+## @package class Player
+#  klasa reprezentujaca gracza
+#
+#
 class Player:
 
+    ##konstruktor tworzacy gracza
+    # @id gracza
+    # @name nazwa gracza
+    # @money budzet gracza
     def __init__(self,id,name, money):
         self.id = id
         self.name = "noname"
@@ -19,12 +23,13 @@ class Player:
         self.power_hand = -1
         self.best_hand = []
 
-
+    ## metoda kopiujaca gracza
     def copy(self):
         other = Player(self.id, self.name, self.money)
         other.hand = self.hand.copy()
         return other
 
+    ## metoda resetujaca parametry gracza do nastepnego rozdania
     def reset(self):
         self.hand = Hand()
         self.isAllin = False
@@ -32,6 +37,7 @@ class Player:
         self.action_n =-1
         self.bet_how = 0
 
+    ## metoda placenia zetonami
     def pay(self,how_many):
         if(self.money - how_many > 0):
             self.money-=how_many
@@ -45,9 +51,14 @@ class Player:
             print ("allin")
             return rest
 
+    ## metoda pokazujaca karty gracza
     def show_cards(self):
         return self.hand
 
+    ## metoda licytacji, z niej wywoływane są poszczegolne akcje
+    # @param do_it rodzaj kacji
+    # @param bet ilosc zetonow
+    # @param bet_prv poprzedni najwiekszy zaklad w rozdaniu
     def action(self,do_it, bet, bet_prv):
         action=-1
         answer =-1
@@ -70,35 +81,39 @@ class Player:
             answer = self.fold(bet_prv)
         return [answer,action]
 
+    ## metoda do akcji allin
     def allin(self,bet_prv):
         return self.pay(self.money)
 
+    ## metoda do akcji raise
     def raisee(self,bet_prv,raisee):
         if bet_prv > 0 and raisee > bet_prv:
             return self.pay(raisee-self.bet_how)
         else:
             return -1
 
+    ## metoda do akcji check
     def check(self,bet_prv):
         if (bet_prv == 0 or bet_prv == self.bet_how):
             return 0
         else:
             return -1
 
-
+    ## metoda do akcji bet
     def bet(self,bet_prv,bet):
         if (bet_prv == 0):
             return self.pay(bet)
         else:
             return -1
 
+    ## metoda do akcji call
     def call(self,bet_prv):
         if bet_prv >0:
             return self.pay(bet_prv-self.bet_how)
         else:
             return self.check(bet_prv)
 
-
+    ## metoda do akcji fold
     def fold(self,bet_prv):
         self.isFold = True
         return 0

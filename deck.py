@@ -1,7 +1,13 @@
 from card import Card
 import random
+
+## @package class Deck
+#  klasa reprezentujaca talie kart
+#
+#
 class Deck:
 
+    ##konstruktor, 52 karty
     def __init__(self):
         self.cards = []
         for suit in range(1,5):
@@ -14,17 +20,20 @@ class Deck:
             # sys.exit("ERROR: Invalid number of cards")
             
 
-    
+    ## metoda tasujaca karty
     def shuffle(self):
         random.shuffle(self.cards)        
         return self.cards
-                  
+
+    ## metoda pokazujaca talie kart
     def show(self):
         print (self.cards)
 
+    ## metoda rozdajaca 1 karte
     def getOne(self):
         return self.cards.pop()
 
+    ## metoda rozdajaca n kart
     def getCards(self, numberCards):
         if numberCards > self.cardsLeft():
             return sys.exit("ERROR: Not enough cards")
@@ -33,5 +42,6 @@ class Deck:
             cardsReturn.append(self.cards.pop())
         return cardsReturn
 
+    ##metoda liczaca ilosc kart w talii
     def cardsLeft(self):
         return len(self.cards)
